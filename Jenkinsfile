@@ -14,25 +14,31 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
-    steps {
-        bat 'docker build -t %DOCKER_IMAGE%:latest .'
-    }
+       stage('Login to Docker Hub') {
+steps {
+withCredentials([usernamePassword(
+credentialsId: 'dockerhub-creds',
+usernameVariable: 'DOCKER_USER',
+passwordVariable: 'DOCKER_PASS'
+)]) {
+powershell '''
+if ([string]::IsNullOrWhiteSpace($env:DOCKER_PASS)) {
+Write-Error "Docker Hub token is empty"
+exit 1
 }
 
-        stage('Login to Docker Hub') {
-    steps {
-        withCredentials([usernamePassword(
-            credentialsId: 'dockerhub-creds',
-            usernameVariable: 'DOCKER_USER',
-            passwordVariable: 'DOCKER_PASS'
-        )]) {
-            powershell '''
-    $env:DOCKER_PASS | docker login -u $env:DOCKER_USER --password-stdin
-'''
-        }
+```
+            Write-Host "Username: $env:DOCKER_USER"
+            Write-Host "Token is present"
+
+            $env:DOCKER_PASS | docker login -u $env:DOCKER_USER --password-stdin
+        '''
     }
 }
+```
+
+}
+
 
 stage('Push Docker Image') {
     steps {
