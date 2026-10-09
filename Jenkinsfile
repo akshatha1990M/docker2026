@@ -15,12 +15,10 @@ pipeline {
         }
 
         stage('Build Docker Image') {
-            steps {
-                script {
-                    docker.build("${DOCKER_IMAGE}:latest")
-                }
-            }
-        }
+    steps {
+        bat 'docker build -t %DOCKER_IMAGE%:latest .'
+    }
+}
 
         stage('Login to Docker Hub') {
             steps {
