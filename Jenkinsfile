@@ -10,7 +10,7 @@ pipeline {
 
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/akshatha1990M/docker2026.git'
+                git branch: 'main', url: 'https://github.com/akshatha1990M/docker2026.git'
             }
         }
 
