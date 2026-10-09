@@ -27,16 +27,20 @@ Write-Error "Docker Hub token is empty"
 exit 1
 }
 
-```
-            Write-Host "Username: $env:DOCKER_USER"
+            Write-Host "Docker Hub username: $env:DOCKER_USER"
             Write-Host "Token is present"
 
             $env:DOCKER_PASS | docker login -u $env:DOCKER_USER --password-stdin
-        '''
+
+            if ($LASTEXITCODE -ne 0) {
+                exit 1
+            }
+        
     }
 }
 
 }
+
 
 
 stage('Push Docker Image') {
