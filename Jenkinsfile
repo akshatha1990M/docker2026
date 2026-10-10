@@ -1,30 +1,39 @@
+
 pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'akshatha29/docimg'
+        DOCKER_IMAGE = "akshatha29/docimg"
     }
 
     stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/akshatha1990M/docker2026.git'
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
                 bat 'docker build -t %DOCKER_IMAGE%:latest .'
             }
         }
 
-        
-stage('Login to Docker Hub') {
+        stage('Login to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(
+                withCredentials([string(
                     credentialsId: 'dockerhub-exp10',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
+                    variable: 'DOCKER_PAT'
                 )]) {
-                    bat 'echo $DOCKER_PASS|docker login -u $DOCKER_USER --password-stdin'
+                    bat '''
+                    @echo off
+                    echo %DOCKER_PAT%|docker login -u akshatha29 --password-stdin
+                    if errorlevel 1 exit /b 1
+                    '''
                 }
             }
         }
-
 
         stage('Push Docker Image') {
             steps {
@@ -35,11 +44,12 @@ stage('Login to Docker Hub') {
 
     post {
         success {
-            echo 'Docker image built and pushed successfully!'
+            echo 'Docker image built and pushed successfully.'
         }
         failure {
             echo 'Pipeline failed. Check Console Output.'
         }
     }
 }
+
 
